@@ -12,11 +12,11 @@ library(plotly)
 library(patchwork)
 library(nlme)
 library(AICcmodavg)
-source("~/github/smallmouth_swim_metabolism/worksheets/functions.R") #R2 function
+source("worksheets/functions.R") #R2 function
 
 #load data 
-swim.data.acc <- readRDS("~/github/smallmouth_swim_metabolism/data/swim.data.acc.rds")
-swim.data.all <- readRDS("~/github/smallmouth_swim_metabolism/data/swim.data.all.rds")
+swim.data.acc <- readRDS("data/swim.data.acc.rds")
+swim.data.all <- readRDS("data/swim.data.all.rds")
 
 
 #acc vs MO2 ----
@@ -33,11 +33,11 @@ swim.data.acc$loggs <- log(swim.data.acc$gs)
 M1<-lme(logMO2 ~ gs + logmass.kg + logtemp + Sex +
           gs*logmass.kg + gs*logtemp + logmass.kg*logtemp,
         random = ~1 | Transmitter.ID, method = "REML", 
-        data = swim.data.acc)# random intercept
+        data = swim.data.acc) # random intercept
 M2<-lme(logMO2 ~ gs + logmass.kg + logtemp + Sex +
           gs*logmass.kg + gs*logtemp + logmass.kg*logtemp,
         random = ~gs -1 | Transmitter.ID, method = "REML", 
-        data = swim.data.acc)# random slope
+        data = swim.data.acc) # random slope
 
 #this doesn't converge
 #M3<-lme(logMO2 ~ gs + logmass.kg + logtemp + Sex +
@@ -64,12 +64,12 @@ summary(M1.final)
 rsquared.lme(list(M1.final)) 
 
 #model val
-E <- resid(M1.final)
-F <- fitted(M1.final)
-plot(E~F)
-plot(E ~ swim.data.acc$gs)
-plot(E ~ swim.data.acc$logtemp)
-plot(E ~ swim.data.acc$mass.kg)
+mod.E <- resid(M1.final)
+mod.F <- fitted(M1.final)
+plot(mod.E~mod.F)
+plot(mod.E ~ swim.data.acc$gs)
+plot(mod.E ~ swim.data.acc$logtemp)
+plot(mod.E ~ swim.data.acc$mass.kg)
 
 
 #show some predictions
@@ -138,9 +138,9 @@ SM3<-lme(loggs ~ speed.corr + mass.kg + temp + Sex +
          random = ~1 + speed.corr | Transmitter.ID, method = "REML", 
          data = swim.data.acc)# both
 anova(SM1,SM2, SM3)
+
+
 #intercept 
-
-
 SM1.ML <-lme(loggs ~ speed.corr + mass.kg + temp + Sex +
                speed.corr*mass.kg + speed.corr*temp + speed.corr*Sex,
              random = ~1 | Transmitter.ID, method = "ML", 
@@ -164,14 +164,13 @@ rsquared.lme(list(SM.final))
 exp(-1.69) #0.185 is resting 
 
 #model validation 
-E <- resid(SM.final)
-F <- fitted(SM.final)
-plot(E~F)
-plot(E ~ swim.data.acc$speed.corr)
-plot(E ~ swim.data.acc$temp)
-plot(E ~ swim.data.acc$mass.kg)
-plot(E ~ swim.data.acc$Sex)
-#
+mod.E <- resid(SM.final)
+mod.F <- fitted(SM.final)
+plot(mod.E~mod.F)
+plot(mod.E ~ swim.data.acc$speed.corr)
+plot(mod.E ~ swim.data.acc$temp)
+plot(mod.E ~ swim.data.acc$mass.kg)
+plot(mod.E ~ swim.data.acc$Sex)
 
 
 #predictions
@@ -211,7 +210,7 @@ ggplot(swim.data.acc, aes(speed.corr, gs, col=temp.cat))+geom_point()+
   ggplot(preds.swim %>% filter(speed.corr==50), aes(mass.kg, temp, fill=gs.pred))+geom_tile()+
   scale_fill_viridis_c(option="mako", name="Acc (g)")+
   labs(x="Mass (kg)", y="Temperature (ºC)", subtitle="D) Mass + Temperature (50 cm/s)")+theme_classic()
-#
+
 
 
 
@@ -276,12 +275,12 @@ exp(-0.27) #mass
 
 
 #model val
-E <- resid(SMO.final)
-F <- fitted(SMO.final)
-plot(E~F)
-plot(E ~ swim.data.all$speed.corr)
-plot(E ~ swim.data.all$temp)
-plot(E ~ swim.data.all$mass.kg)
+mod.E <- resid(SMO.final)
+mod.F <- fitted(SMO.final)
+plot(mod.E~mod.F)
+plot(mod.E ~ swim.data.all$speed.corr)
+plot(mod.E ~ swim.data.all$temp)
+plot(mod.E ~ swim.data.all$mass.kg)
 
 
 #preds
@@ -334,7 +333,7 @@ ggplot(swim.data.all, aes(temp.cat, Ucrit))+geom_boxplot()+scale_y_continuous(li
 ggplot(swim.data.all, aes(temp, Ucrit))+geom_point()+geom_smooth(method='lm', formula=y ~ poly(x, 2))+
   theme_bw()+xlab("Temperature (ºC)")+ylab(bquote("Ucrit (cm"~s^'–1'*')'))
 ggplot(swim.data.all, aes(log(temp), Ucrit))+geom_point()+geom_smooth(method='lm')+
-  theme_bw()+xlab("Temperature (ºC)")+ylab(bquote("Ucrit (cm"~s^'–1'*')'))
+  theme_bw()+xlab("Log-transformed Temperature (ºC)")+ylab(bquote("Ucrit (cm"~s^'–1'*')'))
 
 
 #models
@@ -369,12 +368,12 @@ summary(UC.final)
 rsquared.lme(list(UC.final)) 
 
 #model val
-E <- resid(UC.final)
-F <- fitted(UC.final)
-plot(E~F)
-plot(E ~ swim.data.all$speed.corr)
-plot(E ~ swim.data.all$temp)
-plot(E ~ swim.data.all$mass.kg)
+mod.E <- resid(UC.final)
+mod.F <- fitted(UC.final)
+plot(mod.E~mod.F)
+plot(mod.E ~ swim.data.all$speed.corr)
+plot(mod.E ~ swim.data.all$temp)
+plot(mod.E ~ swim.data.all$mass.kg)
 
 
 #preds
@@ -390,7 +389,7 @@ ggplot(swim.data.all, aes(temp, Ucrit, col=as.factor(mass.kg)))+geom_point()+
   geom_smooth(data=preds.UC %>% filter(mass.kg==0.5 | mass.kg==1 | mass.kg==1.5 | mass.kg==2 | mass.kg==2.5),
               aes(temp, Ucrit.pred, col=as.factor(mass.kg)), fill="NA")+
   theme_bw()+labs(x="Temperature (ºC)", y=bquote("Ucrit (cm"~s^'–1'*')'), title="Ucrit", subtitle="A) Temperature + Mass")+
-  scale_y_continuous(limits=c(0,110))+scale_color_viridis_d(begin=0, end=0.9, name="Mass (kg)")+
+  scale_y_continuous(limits=c(0,110))+scale_color_viridis_d(begin=0, end=0.9, name="Mass (kg)", breaks = c("0.5","1","1.5","2"))+
   
   ggplot(swim.data.all, aes(temp, Ucrit, col=Sex))+geom_point()+
   geom_smooth(data=preds.UC %>% filter(mass.kg==1),
@@ -458,7 +457,7 @@ ggplot(fish.metrics, aes(temp, MMR, col=as.factor(mass.kg)))+geom_point()+
   geom_smooth(data=preds.swimMO2 %>% filter(mass.kg==0.7 | mass.kg==1 | mass.kg==1.5 | mass.kg==2),
               aes(temp, MMR.pred, col=as.factor(mass.kg)), fill="NA")+
   theme_bw()+labs(x="Temperature (ºC)", y=bquote(~MMR* ' (mg' ~O[2] ~kg^'–1'~hour^'–1'*')'), title="MMR", subtitle="A) Temperature + Mass")+
-  scale_y_continuous(limits=c(0,400))+scale_color_viridis_d(begin=0, end=0.9, name="Mass (kg)")+ 
+  scale_y_continuous(limits=c(0,400))+scale_color_viridis_d(begin=0, end=0.9, name="Mass (kg)", breaks = c("0.5","1","1.5","2"))+ 
   
   ggplot(fish.metrics, aes(temp, MMR, col=Sex))+geom_point()+
   geom_smooth(data=preds.swimMO2 %>% filter(mass.kg==1),
